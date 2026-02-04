@@ -7,18 +7,32 @@ DB_PATH = "honeypot.db"
 def init_db():
     conn = sqlite3.connect(DB_PATH)
     cur = conn.cursor()
+
+    # Drop old table to avoid schema conflicts
+    cur.execute("DROP TABLE IF EXISTS sessions")
+
     cur.execute("""
-        CREATE TABLE IF NOT EXISTS sessions (
+        CREATE TABLE sessions (
             session_id TEXT PRIMARY KEY,
-            messages TEXT
+            last_message TEXT,
+            scam_detected INTEGER
         )
     """)
+
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS intelligence (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            session_id TEXT,
+            upi_id TEXT,
+            bank_account TEXT,
+            ifsc_code TEXT,
+            phishing_link TEXT
+        )
+    """)
+
     conn.commit()
     conn.close()
 
-import sqlite3
-
-DB_PATH = "honeypot.db"  # replace with your DB path
 
 def save_message(session_id: str, sender: str, message: str, scam_detected: int ):
     """
@@ -100,4 +114,5 @@ def save_intelligence(session_id, upi_id=None, bank_account=None, ifsc_code=None
 
     conn.commit()
     conn.close()
+
 
