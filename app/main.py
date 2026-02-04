@@ -11,12 +11,14 @@ app = FastAPI(title="Agentic Honeypot API")
 API_KEY = os.getenv("HONEYPOT_API_KEY")
 init_db()
 print(API_KEY)
+@app.get("/")
+def health():
+    return {"status": "running"}
 @app.post("/honeypot")
 def honeypot(req: HoneypotRequest,x_api_key: str = Header(None)):
     if x_api_key != API_KEY:
         raise HTTPException(status_code=401, detail="Unauthorized")
     analysis = analyze_message(req.message)
-    reply = generate_reply_ai(req.message, req.session_id)
     explanation = explain_scam(req.message)
     is_scam = explanation.strip().lower().startswith("spam")
     if is_scam:
@@ -85,5 +87,6 @@ def honeypot(req: HoneypotRequest,x_api_key: str = Header(None)):
         "risk_level": "HIGH" if is_scam else "LOW",
         "extracted_intelligence": session_intel,
         "conversation_summary": explanation,
-        "persona_reply": reply
+        "persona_reply": persona_reply
     }
+
