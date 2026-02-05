@@ -1,13 +1,56 @@
-# app/persona.py
-from app.client import generate_persona_reply
-from app.database import get_conversation
+from app.client import call_mistral
 
-def generate_reply_ai(message: str, session_id: str) -> str:
+def generate_persona_reply(message: str, history_text: str = ""):
+    messages = [
+        {
+            "role": "system",
+            "content": "You are a believable AI persona interacting with a potential scammer."
+        },
+        {
+            "role": "user",
+            "content": f"""
+Engage the scammer naturally, keep them talking, and try to get details like UPI ID, bank accounts, phone numbers, or phishing links.
+Conversation history:
+{history_text}
+
+Scammer said:
+{message}
+
+Respond in 1 to 2 sentences.
+"""
+        }
+    ]
+    return call_mistral(messages)
+def explain_scam(message: str) -> str:
     """
-    Generates a believable AI persona reply to engage a scammer.
+    Detect if a message is a scam.
+    Returns a short explanation starting with 'Spam - <type> :' or 'Not Spam:'
     """
-    # Prepare conversation history for context
-    history = get_conversation(session_id)
-    response = generate_persona_reply(message, history)
-    print(response)
-    return response
+    messages = [
+        {
+            "role": "system",
+            "content": "You are a fraud detection assistant."
+        },
+        {
+            "role": "user",
+            "content": f"""
+Your task is to decide if a message is a scam or not.
+Respond by start the response with either:
+'Spam - <Scam Type> :' if it is a scam
+'Not Spam:' if it is legitimate
+Scam types can be:
+- Financial Scam
+- Phishing
+- Loan Scam
+- Job Scam
+- Prize Scam
+- OTP Scam
+- Investment Scam
+- Other
+'Intent: ' Which spam tactics the scammers use in 5 to 6 words
+Message:
+{message}
+"""
+        }
+    ]
+    return call_mistral(messages)
