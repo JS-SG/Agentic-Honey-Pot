@@ -12,11 +12,11 @@ init_db()
 
 API_KEY = os.getenv("HONEYPOT_API_KEY")
 
-@app.api_route("/", methods=["GET", "HEAD"])
+@app.api_route("/honeypot", methods=["GET", "HEAD"])
 def health():
     return {"status": "running"}
 
-@app.post("/")
+@app.post("/honeypot")
 def honeypot(req: HoneypotRequest,x_api_key: str = Header(None)):
     if x_api_key != API_KEY:
         raise HTTPException(status_code=401, detail="Unauthorized")
@@ -81,3 +81,4 @@ def honeypot(req: HoneypotRequest,x_api_key: str = Header(None)):
         "status": "success",
         "reply": reply
     }
+
