@@ -23,7 +23,7 @@ async def honeypot(req: Request,x_api_key: str = Header(None)):
     body = await req.json()
     message = body.get("message") or body.get("text") or  body.get("txt") or  body.get("msg")
     session_id = body.get("session_id") or str(uuid.uuid4())
-     message = str(message)
+    message = str(message)
     analysis = analyze_message(message)
     reply = generate_reply_ai(message, session_id)
     explanation = explain_scam(message)
@@ -92,3 +92,4 @@ async def honeypot(req: Request,x_api_key: str = Header(None)):
         "conversation_summary": explanation,
         "persona_reply": reply
     }
+
