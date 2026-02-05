@@ -12,7 +12,7 @@ app = FastAPI(title="Agentic Honeypot API")
 API_KEY = os.getenv("HONEYPOT_API_KEY")
 init_db()
 
-@app.get("/honeypot")
+@app.api_route("/honeypot", methods=["GET", "HEAD"])
 def health():
     return {"status": "running"}
 
@@ -92,4 +92,5 @@ async def honeypot(req: Request,x_api_key: str = Header(None)):
         "conversation_summary": explanation,
         "persona_reply": reply
     }
+
 
