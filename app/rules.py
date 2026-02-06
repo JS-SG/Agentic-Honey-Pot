@@ -1,9 +1,11 @@
 import re
+
+
 UPI_REGEX = r"\b[a-zA-Z0-9.\-_]{2,}@[a-zA-Z0-9.\-]{2,}\b"
 BANK_REGEX = r"\b(?:account|acc|a\/c|ac)(?:\s*(?:no|number|#))?\s*(?:is|:|-|\()?(\d{9,18})\)?\b"
 GENERIC_ACCOUNT_REGEX = r"\b\d{12,18}\b"
 IFSC_REGEX = r"\b[A-Z]{4}0[A-Z0-9]{6}\b"
-URL_REGEX = r"https?://[^\s]+"
+URL_REGEX = r"(https?://[^\s]+|www\.[^\s]+)"
 PHONE_REGEX = r"\+91[\-\s]?\d{10}|\b[6-9]\d{9}\b"
 KEYWORDS = ["urgent", "verify", "blocked", "suspended", "account", "transfer",  "inactive", "immediately",
     "verify", "limited time",
