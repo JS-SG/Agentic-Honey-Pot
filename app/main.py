@@ -53,7 +53,7 @@ def honeypot(req: HoneypotRequest,x_api_key: str = Header(None)):
     tactics = explanation.split(":")[2]
         # Count messages
     total_messages = len(req.conversationHistory) + 1
-    MIN_TURNS = 15
+    MIN_TURNS = 19
     # Check if intelligence exists
     intelligence_found = (
         analysis["upi_ids"]
@@ -81,4 +81,5 @@ def honeypot(req: HoneypotRequest,x_api_key: str = Header(None)):
         "status": "success",
         "reply": reply
     }
+
 
