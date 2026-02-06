@@ -1,9 +1,9 @@
 import re
-UPI_REGEX = r"[a-zA-Z0-9.\-_]{2,}@[a-zA-Z]{2,}"
-BANK_REGEX = r"(?:account|acc|a\/c|ac)\s*(?:no|number|#)?[:\s-]*(\d{9,18})"
+UPI_REGEX = r"\b[a-zA-Z0-9.\-_]{2,}@[a-zA-Z0-9.\-]{2,}\b"
+BANK_REGEX = r"\b(?:account|acc|a\/c|ac)(?:\s*(?:no|number|#))?\s*(?:is|:|-)?\s*(\d{9,18})\b"
 IFSC_REGEX = r"\b[A-Z]{4}0[A-Z0-9]{6}\b"
 URL_REGEX = r"https?://[^\s]+"
-PHONE_REGEX = r"\+?\d{10,13}"
+PHONE_REGEX = r"\+?\d[\d\-\s]{9,14}\d"
 KEYWORDS = ["urgent", "verify", "blocked", "suspended", "account", "transfer",  "inactive", "immediately",
     "verify", "limited time",
         # Banking
@@ -33,4 +33,5 @@ def analyze_message(message: str):
         "phone_numbers": re.findall(PHONE_REGEX, message),
         "keywords": keywords_found
     }
+
 
