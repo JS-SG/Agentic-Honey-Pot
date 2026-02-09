@@ -22,12 +22,7 @@ def honeypot(req: HoneypotRequest,x_api_key: str = Header(None)):
         raise HTTPException(status_code=401, detail="Unauthorized")
     session_id = req.sessionId
     message = req.message.text
-
-
-    # Analyze scam message
     analysis = analyze_message(message)
-
-    # Save intelligence
     for u in analysis["upi_ids"]:
         save_intelligence(session_id, upi=u)
 
@@ -39,8 +34,10 @@ def honeypot(req: HoneypotRequest,x_api_key: str = Header(None)):
 
     for l in analysis["phishing_links"]:
         save_intelligence(session_id, link=l)
+    
+    for p in analysis["phone_numbers"]:
+        save_intelligence(session_id, phone=p)
 
-    # Build history text
     history_text = ""
     for msg in req.conversationHistory:
         history_text += f"{msg.sender}: {msg.text}\n"
@@ -74,12 +71,10 @@ def honeypot(req: HoneypotRequest,x_api_key: str = Header(None)):
             total_messages=total_messages
         )
 
-
-
-    # IMPORTANT: required response format
     return {
         "status": "success",
         "reply": reply
     }
+
 
 
