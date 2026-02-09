@@ -12,7 +12,8 @@ def init_db():
         upi TEXT,
         bank TEXT,
         ifsc TEXT,
-        link TEXT
+        link TEXT,
+        phone TEXT
     )
     """)
     conn.commit()
@@ -22,8 +23,9 @@ def save_intelligence(session_id, upi=None, bank=None, ifsc=None, link=None):
     conn = sqlite3.connect(DB)
     cur = conn.cursor()
     cur.execute(
-        "INSERT INTO intelligence(session_id, upi, bank, ifsc, link) VALUES (?, ?, ?, ?, ?)",
+        "INSERT INTO intelligence(session_id, upi, bank, ifsc, link, phone) VALUES (?, ?, ?, ?, ?, ?)",
         (session_id, upi, bank, ifsc, link)
     )
     conn.commit()
     conn.close()
+
