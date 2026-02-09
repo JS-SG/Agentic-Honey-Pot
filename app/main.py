@@ -38,6 +38,9 @@ def honeypot(req: HoneypotRequest,x_api_key: str = Header(None)):
     for p in analysis["phone_numbers"]:
         save_intelligence(session_id, phone=p)
 
+    for k in analysis["keywords"]:
+        save_intelligence(session_id, keyword=k)
+
     history_text = ""
     for msg in req.conversationHistory:
         history_text += f"{msg.sender}: {msg.text}\n"
@@ -48,26 +51,23 @@ def honeypot(req: HoneypotRequest,x_api_key: str = Header(None)):
     is_scam = explanation.strip().lower().startswith("spam")
     scam_type = explanation.split(":")[0].replace("Spam -", "").strip()
     tactics = explanation.split(":")[2]
-        # Count messages
     total_messages = len(req.conversationHistory) + 1
     MIN_TURNS = 19
-    # Check if intelligence exists
-    intelligence_found = (
-        analysis["upi_ids"]
-        and analysis["bank_accounts"]
-        and analysis["phishing_links"]
-        and analysis["phone_numbers"]
-    )
+    intel = get_session_intelligence(session_id)
+    intel_types = sum([
+        bool(intel["upi_ids"]),
+        bool(intel["bank_accounts"]),
+        bool(intel["phishing_links"]),
+        bool(intel["phone_numbers"])
+    ])
 
-    print(intelligence_found)
-
-    if intelligence_found and total_messages >= MIN_TURNS:
+    if intel_types>=3 or total_messages >= MIN_TURNS:
         send_final_result(
             session_id=session_id,
             is_scam=is_scam,
             scam_type=scam_type,
             tactics=tactics,
-            intelligence=analysis,
+            intelligence=intel,
             total_messages=total_messages
         )
 
@@ -75,6 +75,7 @@ def honeypot(req: HoneypotRequest,x_api_key: str = Header(None)):
         "status": "success",
         "reply": reply
     }
+
 
 
 
