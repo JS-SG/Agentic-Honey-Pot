@@ -13,20 +13,64 @@ def init_db():
         bank TEXT,
         ifsc TEXT,
         link TEXT,
-        phone TEXT
+        phone TEXT,
+        keyword TEXT
     )
     """)
     conn.commit()
     conn.close()
 
-def save_intelligence(session_id, upi=None, bank=None, ifsc=None, link=None, phone=None):
+
+def get_session_intelligence(session_id):
+     conn = sqlite3.connect(DB)
+     cur = conn.cursor()
+
+     cur.execute("""
+            SELECT upi, bank, ifsc, link, phone, keyword
+            FROM intelligence
+            WHERE session_id=?
+     """, (session_id,))
+
+     rows = cur.fetchall()
+     conn.close()
+
+     result = {
+            "upi_ids": [],
+            "bank_accounts": [],
+            "ifsc_codes": [],
+            "phishing_links": [],
+            "phone_numbers": [],
+            "keywords": []
+        }
+
+     for row in rows:
+        upi, bank, ifsc, link, phone, keyword = row
+
+        if upi:
+            result["upi_ids"].append(upi)
+        if bank:
+            result["bank_accounts"].append(bank)
+        if ifsc:
+            result["ifsc_codes"].append(ifsc)
+        if link:
+            result["phishing_links"].append(link)
+        if phone:
+            result["phone_numbers"].append(phone)
+        if keyword:
+            result["keywords"].append(keyword)
+
+     for key in result:
+        result[key] = list(set(result[key]))
+
+     return result
+
+
+def save_intelligence(session_id, upi=None, bank=None, ifsc=None, link=None, phone=None, keyword=None):
     conn = sqlite3.connect(DB)
     cur = conn.cursor()
     cur.execute(
-        "INSERT INTO intelligence(session_id, upi, bank, ifsc, link, phone) VALUES (?, ?, ?, ?, ?, ?)",
-        (session_id, upi, bank, ifsc, link, phone)
+        "INSERT INTO intelligence(session_id, upi, bank, ifsc, link, phone, keyword) VALUES (?, ?, ?, ?, ?, ?, ?)",
+        (session_id, upi, bank, ifsc, link, phone, keyword)
     )
     conn.commit()
     conn.close()
-
-
