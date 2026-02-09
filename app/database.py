@@ -19,13 +19,14 @@ def init_db():
     conn.commit()
     conn.close()
 
-def save_intelligence(session_id, upi=None, bank=None, ifsc=None, link=None):
+def save_intelligence(session_id, upi=None, bank=None, ifsc=None, link=None, phone=None):
     conn = sqlite3.connect(DB)
     cur = conn.cursor()
     cur.execute(
         "INSERT INTO intelligence(session_id, upi, bank, ifsc, link, phone) VALUES (?, ?, ?, ?, ?, ?)",
-        (session_id, upi, bank, ifsc, link)
+        (session_id, upi, bank, ifsc, link, phone)
     )
     conn.commit()
     conn.close()
+
 
