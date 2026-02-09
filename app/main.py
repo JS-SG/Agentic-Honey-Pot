@@ -61,7 +61,7 @@ def honeypot(req: HoneypotRequest,x_api_key: str = Header(None)):
 
     print(intelligence_found)
 
-    if intelligence_found or total_messages >= MIN_TURNS:
+    if intelligence_found and total_messages >= MIN_TURNS:
         send_final_result(
             session_id=session_id,
             is_scam=is_scam,
@@ -75,6 +75,7 @@ def honeypot(req: HoneypotRequest,x_api_key: str = Header(None)):
         "status": "success",
         "reply": reply
     }
+
 
 
 
