@@ -68,6 +68,18 @@ def get_session_intelligence(session_id):
 def save_intelligence(session_id, upi=None, bank=None, ifsc=None, link=None, phone=None, keyword=None):
     conn = sqlite3.connect(DB)
     cur = conn.cursor()
+    if isinstance(upi, tuple):
+        upi = upi[0]
+    if isinstance(bank, tuple):
+        bank = bank[0]
+    if isinstance(ifsc, tuple):
+        ifsc = ifsc[0]
+    if isinstance(link, tuple):
+        link = link[0]
+    if isinstance(phone, tuple):
+        phone = phone[0]
+    if isinstance(keyword, tuple):
+        keyword = keyword[0]
     cur.execute(
         "INSERT INTO intelligence(session_id, upi, bank, ifsc, link, phone, keyword) VALUES (?, ?, ?, ?, ?, ?, ?)",
         (session_id, upi, bank, ifsc, link, phone, keyword)
