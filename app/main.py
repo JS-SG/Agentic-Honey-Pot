@@ -2,7 +2,7 @@ from fastapi import FastAPI, Header, HTTPException
 from app.models import HoneypotRequest
 from app.rules import analyze_message
 from app.persona import generate_persona_reply, explain_scam
-from app.database import init_db, save_intelligence
+from app.database import init_db, save_intelligence, get_session_intelligence
 from app.callback import send_final_result
 import os
 from dotenv import load_dotenv
@@ -75,6 +75,7 @@ def honeypot(req: HoneypotRequest,x_api_key: str = Header(None)):
         "status": "success",
         "reply": reply
     }
+
 
 
 
