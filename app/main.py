@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Header, HTTPException
+from fastapi import FastAPI, Header, HTTPException, Request
 from app.models import HoneypotRequest
 from app.rules import analyze_message
 from app.persona import generate_persona_reply, explain_scam
@@ -17,66 +17,97 @@ def health():
     return {"status": "running"}
 
 @app.post("/honeypot")
-def honeypot(req: HoneypotRequest,x_api_key: str = Header(None)):
+async def honeypot(req: Request,x_api_key: str = Header(None)):
+    
     if x_api_key != API_KEY:
         raise HTTPException(status_code=401, detail="Unauthorized")
-    session_id = req.sessionId
-    message = req.message.text
-    analysis = analyze_message(message)
-    for u in analysis["upi_ids"]:
-        save_intelligence(session_id, upi=u)
+    try:
+        try:
+            data = await req.json()
+        except:
+            return {
+                "status": "success",
+                "reply": "Hello, could you repeat that?"
+            }
 
-    for b in analysis["bank_accounts"]:
-        save_intelligence(session_id, bank=b)
+        session_id = data.get("sessionId", "unknown")
 
-    for i in analysis["ifsc_codes"]:
-        save_intelligence(session_id, ifsc=i)
+        message_obj = data.get("message", {})
+        message = message_obj.get("text", "")
 
-    for l in analysis["phishing_links"]:
-        save_intelligence(session_id, link=l)
-    
-    for p in analysis["phone_numbers"]:
-        save_intelligence(session_id, phone=p)
+        history = data.get("conversationHistory", [])
+        analysis = analyze_message(message)
 
-    for k in analysis["keywords"]:
-        save_intelligence(session_id, keyword=k)
+        for u in analysis["upi_ids"]:
+            save_intelligence(session_id, upi=u)
 
-    history_text = ""
-    for msg in req.conversationHistory:
-        history_text += f"{msg.sender}: {msg.text}\n"
+        for b in analysis["bank_accounts"]:
+            save_intelligence(session_id, bank=b)
 
-    # Generate persona reply
-    reply = generate_persona_reply(message, history_text)
-    explanation = explain_scam(message)
-    is_scam = explanation.strip().lower().startswith("spam")
-    scam_type = explanation.split(":")[0].replace("Spam -", "").strip()
-    tactics = explanation.split(":")[2]
-    total_messages = len(req.conversationHistory) + 1
-    MIN_TURNS = 19
-    intel = get_session_intelligence(session_id)
-    intel_types = sum([
-        bool(intel["upi_ids"]),
-        bool(intel["bank_accounts"]),
-        bool(intel["phishing_links"]),
-        bool(intel["phone_numbers"])
-    ])
+        for i in analysis["ifsc_codes"]:
+            save_intelligence(session_id, ifsc=i)
 
-    if intel_types>=3 or total_messages >= MIN_TURNS:
-        send_final_result(
-            session_id=session_id,
-            is_scam=is_scam,
-            scam_type=scam_type,
-            tactics=tactics,
-            intelligence=intel,
-            total_messages=total_messages
-        )
+        for l in analysis["phishing_links"]:
+            if isinstance(l, tuple):
+                l = l[0]
+            save_intelligence(session_id, link=l)
 
-    return {
-        "status": "success",
-        "reply": reply
-    }
+        for p in analysis["phone_numbers"]:
+            save_intelligence(session_id, phone=p)
 
+        for k in analysis["keywords"]:
+            save_intelligence(session_id, keyword=k)
 
+        # Build history text
+        history_text = ""
+        for msg in history:
+            history_text += f"{msg.sender}: {msg.text}\n
+
+        reply = generate_persona_reply(message, history_text)
+        explanation = explain_scam(message)
+        is_scam = explanation.strip().lower().startswith("spam")
+        scam_type = "None"
+        tactics = "None"
+
+        parts = explanation.split(":")
+
+        if is_scam:
+            if len(parts) >= 2:
+                scam_type = parts[0].replace("Spam -", "").strip()
+            if len(parts) >= 3:
+                tactics = parts[2].strip()
+        else:
+            # Format: Not Spam : Intent: tactics
+            if len(parts) >= 2:
+                tactics = parts[2].strip()
+        total_messages = len(history) + 1
+        MIN_TURNS = 19
+        intel = get_session_intelligence(session_id)
+        intel_types = sum([
+            bool(intel["upi_ids"]),
+            bool(intel["bank_accounts"]),
+            bool(intel["phishing_links"]),
+            bool(intel["phone_numbers"])
+        ])
+        if intel_types>=3 or total_messages>=MIN_TURNS:
+            send_final_result(
+                session_id=session_id,
+                is_scam=is_scam,
+                scam_type=scam_type,
+                tactics=tactics,
+                intelligence=intel,
+                total_messages=total_messages
+            )
+        return {
+            "status": "success",
+            "reply": reply or "Okay, can you explain more?"
+        }
+    except Exception as e:
+        print("ERROR:", str(e))
+        return {
+            "status": "success",
+            "reply": "I'm not sure I understood. Can you explain again?"
+        }
 
 
 
