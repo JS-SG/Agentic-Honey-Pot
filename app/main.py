@@ -58,11 +58,9 @@ async def honeypot(req: Request,x_api_key: str = Header(None)):
         for k in analysis["keywords"]:
             save_intelligence(session_id, keyword=k)
 
-        # Build history text
         history_text = ""
         for msg in history:
-            history_text += f"{msg.sender}: {msg.text}\n
-
+            history_text += f"{msg.sender}: {msg.text}"\n
         reply = generate_persona_reply(message, history_text)
         explanation = explain_scam(message)
         is_scam = explanation.strip().lower().startswith("spam")
@@ -108,6 +106,7 @@ async def honeypot(req: Request,x_api_key: str = Header(None)):
             "status": "success",
             "reply": "I'm not sure I understood. Can you explain again?"
         }
+
 
 
 
