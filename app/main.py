@@ -18,7 +18,6 @@ def health():
 
 @app.post("/honeypot")
 async def honeypot(req: Request,x_api_key: str = Header(None)):
-    
     if x_api_key != API_KEY:
         raise HTTPException(status_code=401, detail="Unauthorized")
     try:
@@ -57,26 +56,31 @@ async def honeypot(req: Request,x_api_key: str = Header(None)):
 
         for k in analysis["keywords"]:
             save_intelligence(session_id, keyword=k)
-
+            
         history_text = ""
         for msg in history:
-            history_text += f"{msg.sender}: {msg.text}\n"
+            sender = "unknown"
+            text = ""
+            if isinstance(msg, dict):
+                sender = msg.get("sender", "unknown")
+                text = msg.get("text", "")
+            else:
+                sender = msg.sender
+                text = msg.text
+            history_text += f"{sender}: {text}\n"
         reply = generate_persona_reply(message, history_text)
         explanation = explain_scam(message)
         is_scam = explanation.strip().lower().startswith("spam")
         scam_type = "None"
         tactics = "None"
-
         parts = explanation.split(":")
-
         if is_scam:
             if len(parts) >= 2:
                 scam_type = parts[0].replace("Spam -", "").strip()
             if len(parts) >= 3:
                 tactics = parts[2].strip()
         else:
-            # Format: Not Spam : Intent: tactics
-            if len(parts) >= 2:
+            if len(parts) >= 3:
                 tactics = parts[2].strip()
         total_messages = len(history) + 1
         MIN_TURNS = 19
@@ -106,6 +110,7 @@ async def honeypot(req: Request,x_api_key: str = Header(None)):
             "status": "success",
             "reply": "I'm not sure I understood. Can you explain again?"
         }
+
 
 
 
