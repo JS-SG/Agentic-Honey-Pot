@@ -91,10 +91,11 @@ async def honeypot(req: Request,x_api_key: str = Header(None)):
             bool(intel["phishing_links"]),
             bool(intel["phone_numbers"])
         ])
+        final_is_scam = is_scam or intel_types > 0
         if intel_types>=3 or total_messages>=MIN_TURNS:
             send_final_result(
                 session_id=session_id,
-                is_scam=is_scam,
+                is_scam=final_is_scam,
                 scam_type=scam_type,
                 tactics=tactics,
                 intelligence=intel,
@@ -110,6 +111,7 @@ async def honeypot(req: Request,x_api_key: str = Header(None)):
             "status": "success",
             "reply": "I'm not sure I understood. Can you explain again?"
         }
+
 
 
 
