@@ -45,8 +45,10 @@ def analyze_message(message: str):
         "ifsc_codes": re.findall(IFSC_REGEX, message),
         "phishing_links": re.findall(URL_REGEX, text_without_emails),
         "phone_numbers": phones,
+        "emailAddresses": emails,
         "keywords": keywords_found
     }
+
 
 
 
