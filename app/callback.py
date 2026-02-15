@@ -22,6 +22,7 @@ def send_final_result(session_id, is_scam, scam_type, tactics, intelligence, tot
     }
 
     try:
+        print(payload)
         response = requests.post(
             GUVI_ENDPOINT,
             json=payload,
