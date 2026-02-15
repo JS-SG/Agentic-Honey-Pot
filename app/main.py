@@ -4,6 +4,7 @@ from app.rules import analyze_message
 from app.persona import generate_persona_reply, explain_scam
 from app.database import init_db, save_intelligence, get_session_intelligence
 from app.callback import send_final_result
+from app.duration import calculate_engagement_duration
 import os
 from dotenv import load_dotenv
 load_dotenv()
@@ -54,6 +55,9 @@ async def honeypot(req: Request,x_api_key: str = Header(None)):
         for p in analysis["phone_numbers"]:
             save_intelligence(session_id, phone=p)
 
+        for e in analysis["emailAddresses"]:
+            save_intelligence(session_id, email=e)
+
         for k in analysis["keywords"]:
             save_intelligence(session_id, keyword=k)
             
@@ -92,14 +96,16 @@ async def honeypot(req: Request,x_api_key: str = Header(None)):
             bool(intel["phone_numbers"])
         ])
         final_is_scam = is_scam or intel_types > 0
-        if intel_types>=3 or total_messages>=MIN_TURNS:
+        engagement_duration = calculate_engagement_duration(data)
+        if intel_types >= 2 or total_messages > MIN_TURNS:
             send_final_result(
                 session_id=session_id,
                 is_scam=final_is_scam,
                 scam_type=scam_type,
                 tactics=tactics,
                 intelligence=intel,
-                total_messages=total_messages
+                total_messages=total_messages//2,
+                engagement_duration = engagement_duration
             )
         return {
             "status": "success",
@@ -111,6 +117,7 @@ async def honeypot(req: Request,x_api_key: str = Header(None)):
             "status": "success",
             "reply": "I'm not sure I understood. Can you explain again?"
         }
+
 
 
 
