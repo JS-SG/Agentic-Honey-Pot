@@ -2,17 +2,21 @@ import requests
 
 GUVI_ENDPOINT = "https://hackathon.guvi.in/api/updateHoneyPotFinalResult"
 
-def send_final_result(session_id, is_scam, scam_type, tactics, intelligence, total_messages):
+def send_final_result(session_id, is_scam, scam_type, tactics, intelligence, total_messages, engagement_duration):
     payload = {
-        "sessionId": session_id,
+        "status": "success",
         "scamDetected": is_scam,
-        "totalMessagesExchanged": total_messages,
+        "scamType": scam_type,
         "extractedIntelligence": {
+            "phoneNumbers": intelligence.get("phone_numbers", []),
             "bankAccounts": intelligence.get("bank_accounts", []),
             "upiIds": intelligence.get("upi_ids", []),
             "phishingLinks": intelligence.get("phishing_links", []),
-            "phoneNumbers": intelligence.get("phone_numbers", []),
-            "suspiciousKeywords": intelligence.get("keywords", [])
+            "emailAddresses": intelligence.get("emailAddresses",[])
+        },
+        "engagementMetrics": {
+            "totalMessagesExchanged": total_messages,
+            "engagementDurationSeconds": engagement_duration
         },
         "agentNotes": f"Scammer used {scam_type} type scam and tactics like {tactics}"
     }
