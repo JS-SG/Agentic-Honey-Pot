@@ -14,6 +14,7 @@ def init_db():
         ifsc TEXT,
         link TEXT,
         phone TEXT,
+        email TEXT,
         keyword TEXT
     )
     """)
@@ -26,7 +27,7 @@ def get_session_intelligence(session_id):
      cur = conn.cursor()
 
      cur.execute("""
-            SELECT upi, bank, ifsc, link, phone, keyword
+            SELECT upi, bank, ifsc, link, phone, email, keyword
             FROM intelligence
             WHERE session_id=?
      """, (session_id,))
@@ -40,11 +41,12 @@ def get_session_intelligence(session_id):
             "ifsc_codes": [],
             "phishing_links": [],
             "phone_numbers": [],
+            "emailAddresses":[],
             "keywords": []
         }
 
      for row in rows:
-        upi, bank, ifsc, link, phone, keyword = row
+        upi, bank, ifsc, link, phone, email, keyword = row
 
         if upi:
             result["upi_ids"].append(upi)
@@ -56,6 +58,8 @@ def get_session_intelligence(session_id):
             result["phishing_links"].append(link)
         if phone:
             result["phone_numbers"].append(phone)
+        if email:
+            result["emailAddresses"].append(email)
         if keyword:
             result["keywords"].append(keyword)
 
@@ -65,7 +69,7 @@ def get_session_intelligence(session_id):
      return result
 
 
-def save_intelligence(session_id, upi=None, bank=None, ifsc=None, link=None, phone=None, keyword=None):
+def save_intelligence(session_id, upi=None, bank=None, ifsc=None, link=None, phone=None, email=None, keyword=None):
     conn = sqlite3.connect(DB)
     cur = conn.cursor()
     if isinstance(upi, tuple):
@@ -78,11 +82,13 @@ def save_intelligence(session_id, upi=None, bank=None, ifsc=None, link=None, pho
         link = link[0]
     if isinstance(phone, tuple):
         phone = phone[0]
+    if isinstance(email, tuple):
+        email = email[0]
     if isinstance(keyword, tuple):
         keyword = keyword[0]
     cur.execute(
-        "INSERT INTO intelligence(session_id, upi, bank, ifsc, link, phone, keyword) VALUES (?, ?, ?, ?, ?, ?, ?)",
-        (session_id, upi, bank, ifsc, link, phone, keyword)
+        "INSERT INTO intelligence(session_id, upi, bank, ifsc, link, phone, email, keyword) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+        (session_id, upi, bank, ifsc, link, phone, email, keyword)
     )
     conn.commit()
     conn.close()
