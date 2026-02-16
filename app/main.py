@@ -10,7 +10,7 @@ from dotenv import load_dotenv
 load_dotenv()
 app = FastAPI()
 init_db()
-
+FINAL_SENT = set()
 API_KEY = os.getenv("HONEYPOT_API_KEY")
 
 @app.api_route("/honeypot", methods=["GET", "HEAD"])
@@ -98,7 +98,6 @@ async def honeypot(req: Request,x_api_key: str = Header(None)):
         ])
         final_is_scam = is_scam or intel_types > 0
         engagement_duration = calculate_engagement_duration(data)
-        FINAL_SENT = set()
         if intel_types >= 3:
             should_end = True
         elif intel_types >= 2 and total_messages//2 >= 7:
@@ -130,6 +129,7 @@ async def honeypot(req: Request,x_api_key: str = Header(None)):
             "status": "success",
             "reply": "I'm not sure I understood. Can you explain again?"
         }
+
 
 
 
