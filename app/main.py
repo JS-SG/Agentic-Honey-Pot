@@ -98,9 +98,9 @@ async def honeypot(req: Request,x_api_key: str = Header(None)):
         ])
         final_is_scam = is_scam or intel_types > 0
         engagement_duration = calculate_engagement_duration(data)
-        if intel_types >= 3:
+        if intel_types >= 3 and total_messages//2 >=5:
             should_end = True
-        elif intel_types >= 2 and total_messages//2 >= 7:
+        elif intel_types >= 2 and total_messages//2 >= 6:
             should_end = True
         elif total_messages > MIN_TURNS:
             should_end = True
@@ -129,6 +129,7 @@ async def honeypot(req: Request,x_api_key: str = Header(None)):
             "status": "success",
             "reply": "I'm not sure I understood. Can you explain again?"
         }
+
 
 
 
