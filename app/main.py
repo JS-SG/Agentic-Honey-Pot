@@ -12,7 +12,9 @@ app = FastAPI()
 init_db()
 
 API_KEY = os.getenv("HONEYPOT_API_KEY")
-
+@app.api_route("/", methods=["GET", "HEAD"])
+def health():
+    return {"status": "running"}
 
 @app.post("/")
 async def honeypot(req: Request, x_api_key: str = Header(None)):
@@ -89,3 +91,4 @@ async def honeypot(req: Request, x_api_key: str = Header(None)):
             "status": "success",
             "reply": "Can you explain that again?"
         }
+
