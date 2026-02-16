@@ -118,6 +118,7 @@ async def honeypot(req: Request,x_api_key: str = Header(None)):
                 total_messages=total_messages//2,
                 engagement_duration = engagement_duration
             )
+             FINAL_SENT.add(session_id)
         return {
             "status": "success",
             "reply": reply or "Okay, can you explain more?"
@@ -128,6 +129,7 @@ async def honeypot(req: Request,x_api_key: str = Header(None)):
             "status": "success",
             "reply": "I'm not sure I understood. Can you explain again?"
         }
+
 
 
 
