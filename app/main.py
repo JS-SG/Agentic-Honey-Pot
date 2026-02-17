@@ -3,6 +3,7 @@ from app.rules import analyze_message
 from app.persona import generate_persona_reply, explain_scam
 from app.database import init_db, save_intelligence, get_session_intelligence
 from app.callback import send_final_result
+from app.duration import calculate_engagement_duration
 import os
 from dotenv import load_dotenv
 
@@ -68,7 +69,7 @@ async def honeypot(req: Request, x_api_key: str = Header(None)):
         total_messages = len(history) + 1
         intel = get_session_intelligence(session_id)
 
-        engagement_duration = total_messages * 5
+        engagement_duration = calculate_engagement_duration(data)
 
         if total_messages >= 6:
             send_final_result(
@@ -91,4 +92,5 @@ async def honeypot(req: Request, x_api_key: str = Header(None)):
             "status": "success",
             "reply": "Can you explain that again?"
         }
+
 
