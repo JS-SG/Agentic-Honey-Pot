@@ -1,9 +1,8 @@
 from fastapi import FastAPI, Header, HTTPException, Request
-from app2.models import HoneypotRequest
-from app2.rules import analyze_message
-from app2.persona import generate_persona_reply, explain_scam
-from app2.database import init_db, save_intelligence, get_session_intelligence, update_session_status, get_session_status
-from app2.callback import send_final_result
+from app.rules import analyze_message
+from app.persona import generate_persona_reply, explain_scam
+from app.database import init_db, save_intelligence, get_session_intelligence, update_session_status, get_session_status
+from app.callback import send_final_result
 from datetime import datetime, timezone
 import os
 from dotenv import load_dotenv
@@ -188,3 +187,4 @@ def get_results(session_id: str):
         },
         "agentNotes": f"Tactics identified: {status['tactics']}"
     }
+
