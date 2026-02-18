@@ -1,7 +1,7 @@
 from fastapi import FastAPI, Header, HTTPException, Request
 from app.rules import analyze_message
 from app.persona import generate_persona_reply, explain_scam
-from app.database import init_db, save_intelligence, get_session_intelligence
+from app.database import init_db, save_intelligence, get_session_intelligence, update_session_status, get_session_status
 from app.callback import send_final_result
 from app.duration import calculate_engagement_duration
 import os
@@ -68,15 +68,22 @@ async def honeypot(req: Request, x_api_key: str = Header(None)):
         intel = get_session_intelligence(session_id)
 
         engagement_duration = calculate_engagement_duration(data)
-
-        if total_messages >= 6:
+        update_session_status(
+            session_id, 
+            final_is_scam, 
+            scam_type, 
+            tactics, 
+            engagement_duration, 
+            total_messages//2
+        )
+        if total_messages//2 >= 6:
             send_final_result(
                 session_id=session_id,
                 is_scam=is_scam,
                 scam_type=scam_type,
                 tactics=tactics,
                 intelligence=intel,
-                total_messages=total_messages,
+                total_messages=total_messages//2,
                 engagement_duration=engagement_duration
             )
 
@@ -109,6 +116,7 @@ def get_results(session_id: str):
         },
         "agentNotes": f"Tactics identified: {status['tactics']}"
     }
+
 
 
 
