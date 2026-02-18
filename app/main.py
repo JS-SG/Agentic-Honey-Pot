@@ -46,7 +46,6 @@ def calculate_engagement_duration(request_data):
 
     if not timestamps:
         return 0
-    print( int(max(timestamps) - min(timestamps)))
     return int(max(timestamps) - min(timestamps))
 
 
@@ -102,7 +101,6 @@ async def honeypot(req: Request,x_api_key: str = Header(None)):
                 sender = msg.sender
                 text = msg.text
             history_text += f"{sender}: {text}\n"
-            print(history_text)
         reply = generate_persona_reply(message, history_text)
         explanation = explain_scam(message)
         is_scam = explanation.strip().lower().startswith("spam")
@@ -110,7 +108,6 @@ async def honeypot(req: Request,x_api_key: str = Header(None)):
         tactics = "None"
 
         parts = explanation.split(":")
-        print(parts)
         if is_scam:
             if len(parts) >= 2:
                 scam_type = parts[0].replace("Spam -", "").strip()
@@ -140,14 +137,15 @@ async def honeypot(req: Request,x_api_key: str = Header(None)):
         )
 
         if final_is_scam and (total_messages//2 >= 5 and intel_types >= 2):
+            status = get_session_status(session_id)
             send_final_result(
                 session_id=session_id,
-                is_scam=is_scam,
-                scam_type=scam_type,
-                tactics=tactics,
+                is_scam=status["is_scam"],
+                scam_type=status["scam_type"],
+                tactics=status["tactics"],
                 intelligence=intel,
-                total_messages=total_messages//2,
-                engagement_duration=engagement_duration
+                total_messages=status["message_count"],
+                engagement_duration=status["engagement_duration"]
             )
         return {
             "status": "success",
@@ -179,6 +177,7 @@ def get_results(session_id: str):
         },
         "agentNotes": f"Tactics identified: {status['tactics']}"
     }
+
 
 
 
