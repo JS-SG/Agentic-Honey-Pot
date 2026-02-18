@@ -1,5 +1,7 @@
 import sqlite3
+
 DB = "honeypot1.db"
+
 def init_db():
     conn = sqlite3.connect(DB)
     cur = conn.cursor()
@@ -29,30 +31,31 @@ def init_db():
     conn.commit()
     conn.close()
 
+
 def get_session_intelligence(session_id):
-    conn = sqlite3.connect(DB)
-    cur = conn.cursor()
+     conn = sqlite3.connect(DB)
+     cur = conn.cursor()
 
-    cur.execute("""
-        SELECT upi, bank, ifsc, link, phone, email, keyword
-        FROM intelligence
-        WHERE session_id = ?
-    """, (session_id,))
+     cur.execute("""
+            SELECT upi, bank, ifsc, link, phone, email, keyword
+            FROM intelligence
+            WHERE session_id=?
+     """, (session_id,))
 
-    rows = cur.fetchall()
-    conn.close()
+     rows = cur.fetchall()
+     conn.close()
 
-    result = {
-        "upi_ids": [],
-        "bank_accounts": [],
-        "ifsc_codes": [],
-        "phishing_links": [],
-        "phone_numbers": [],
-        "emailAddresses": [],
-        "keywords": []
-    }
+     result = {
+            "upi_ids": [],
+            "bank_accounts": [],
+            "ifsc_codes": [],
+            "phishing_links": [],
+            "phone_numbers": [],
+            "emailAddresses":[],
+            "keywords": []
+        }
 
-    for row in rows:
+     for row in rows:
         upi, bank, ifsc, link, phone, email, keyword = row
 
         if upi:
@@ -70,32 +73,33 @@ def get_session_intelligence(session_id):
         if keyword:
             result["keywords"].append(keyword)
 
-    for key in result:
+     for key in result:
         result[key] = list(set(result[key]))
 
-    return result
+     return result
 
 
-def save_intelligence(session_id, **kwargs):
+def save_intelligence(session_id, upi=None, bank=None, ifsc=None, link=None, phone=None, email=None, keyword=None):
     conn = sqlite3.connect(DB)
     cur = conn.cursor()
-
+    if isinstance(upi, tuple):
+        upi = upi[0]
+    if isinstance(bank, tuple):
+        bank = bank[0]
+    if isinstance(ifsc, tuple):
+        ifsc = ifsc[0]
+    if isinstance(link, tuple):
+        link = link[0]
+    if isinstance(phone, tuple):
+        phone = phone[0]
+    if isinstance(email, tuple):
+        email = email[0]
+    if isinstance(keyword, tuple):
+        keyword = keyword[0]
     cur.execute(
-        """INSERT INTO intelligence
+        "INSERT INTO intelligence(session_id, upi, bank, ifsc, link, phone, email, keyword) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
         (session_id, upi, bank, ifsc, link, phone, email, keyword)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?)""",
-        (
-            session_id,
-            kwargs.get("upi"),
-            kwargs.get("bank"),
-            kwargs.get("ifsc"),
-            kwargs.get("link"),
-            kwargs.get("phone"),
-            kwargs.get("email"),
-            kwargs.get("keyword")
-        )
     )
-
     conn.commit()
     conn.close()
 
@@ -124,6 +128,3 @@ def get_session_status(session_id):
             "message_count": row[4]
         }
     return None
-
-
-
