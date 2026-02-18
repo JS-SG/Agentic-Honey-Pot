@@ -1,4 +1,4 @@
-from app2.client import call_mistral
+from app.client import call_mistral
 
 def generate_persona_reply(message: str, history_text: str = ""):
     messages = [
@@ -54,3 +54,4 @@ Message:
         }
     ]
     return call_mistral(messages)
+
