@@ -14,10 +14,12 @@ def send_final_result(session_id, is_scam, scam_type, tactics,
             "totalMessagesExchanged": total_messages,
             "engagementDurationSeconds": engagement_duration
         },
-        "agentNotes": f"{scam_type} using {tactics}"
+        "agentNotes": f"{Tactics identified from scammer : {tactics}"
     }
 
     try:
         requests.post(GUVI_ENDPOINT, json=payload, timeout=5)
+        print(payload)
+        print("Status called")
     except Exception:
         pass
