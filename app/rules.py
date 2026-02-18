@@ -1,52 +1,46 @@
 import re
-
 UPI_REGEX = r"\b[a-zA-Z0-9.\-_]{2,}@[a-zA-Z0-9.\-]{2,}\b"
-BANK_REGEX = r"\b\d{12,18}\b"
+BANK_REGEX = r"\b(?:account|acc|a\/c|ac)(?:\s*(?:no|number|#))?\s*(?:is|:|-|\()?(\d{9,18})\)?\b"
+GENERIC_ACCOUNT_REGEX = r"\b\d{12,18}\b"
 IFSC_REGEX = r"\b[A-Z]{4}0[A-Z0-9]{6}\b"
-URL_REGEX = r"(https?://[^\s]+|www\.[^\s]+)"
-PHONE_REGEX = r"\b(?:\+91[\s-]?|0)?[6-9]\d{9}\b"
-EMAIL_REGEX = r"\b[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}\b"
+URL_REGEX = r"(https?://[^\s]+|www\.[^\s]+|\b[a-zA-Z0-9.-]+\.(com|in|net|org|co|info)(/[^\s]*)?)"
+PHONE_REGEX = r"\b(?:\+91[\s-]?|0)?[6-9]\d{9}\b|\b1[0-9]{3}[-\s]?[0-9]{3}[-\s]?[0-9]{4}\b"
+email_regex = r"\b[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}\b"
 
-SCAM_KEYWORDS = [
-    "urgent", "blocked", "suspended", "verify", "kyc",
-    "transfer", "send money", "otp", "account", "penalty",
-    "immediately", "limited time"
-]
 
+KEYWORDS = ["urgent", "verify", "blocked", "suspended", "account", "transfer",  "inactive", "immediately",
+    "verify", "limited time",
+
+    "bank", "account", "blocked", "digitally arrested", "suspended"
+
+    "payment", "pay", "amount", "rs.", "₹",
+
+    "insurance", "policy", "lic",
+
+    "urgent", "immediately", "soon", "inactive", "pay now", "send money"
+
+    "verify", "kyc", "otp"]
 
 def analyze_message(message: str):
-    if not message:
-        return empty_result()
-
-    text = message.lower()
-
-    keywords_found = [k for k in SCAM_KEYWORDS if k in text]
-
-    upi_ids = re.findall(UPI_REGEX, message)
-    bank_accounts = re.findall(BANK_REGEX, message)
-    ifsc_codes = re.findall(IFSC_REGEX, message)
-    links = re.findall(URL_REGEX, message)
+    lower = message.lower()
+    keywords_found = [k for k in KEYWORDS if k in lower]
+    bank_accounts = re.findall(BANK_REGEX, message, re.IGNORECASE)
+    generic_accounts = re.findall(GENERIC_ACCOUNT_REGEX, message)
     phones = re.findall(PHONE_REGEX, message)
-    emails = re.findall(EMAIL_REGEX, message)
-
+    emails = re.findall(email_regex, message)
+    text_without_emails = message
+    for email in emails:
+        text_without_emails = text_without_emails.replace(email, "")
+    all_accounts = list(set(bank_accounts + generic_accounts))
+    all_accounts = [acc for acc in all_accounts if acc not in phones]
+    print(emails)
     return {
-        "upi_ids": list(set(upi_ids)),
-        "bank_accounts": list(set(bank_accounts)),
-        "ifsc_codes": list(set(ifsc_codes)),
-        "phishing_links": [l[0] if isinstance(l, tuple) else l for l in links],
-        "phone_numbers": list(set(phones)),
-        "emailAddresses": list(set(emails)),
+        "upi_ids": re.findall(UPI_REGEX, text_without_emails),
+        "bank_accounts": all_accounts,
+        "ifsc_codes": re.findall(IFSC_REGEX, message),
+        "phishing_links": re.findall(URL_REGEX, text_without_emails),
+        "phone_numbers": phones,
+        "emailAddresses": emails,
         "keywords": keywords_found
     }
 
-
-def empty_result():
-    return {
-        "upi_ids": [],
-        "bank_accounts": [],
-        "ifsc_codes": [],
-        "phishing_links": [],
-        "phone_numbers": [],
-        "emailAddresses": [],
-        "keywords": []
-    }
