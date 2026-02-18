@@ -65,11 +65,8 @@ async def honeypot(req: Request,x_api_key: str = Header(None)):
             }
 
         session_id = data.get("sessionId", "unknown")
-
         message_obj = data.get("message", {})
         message = message_obj.get("text", "")
-
-
         history = data.get("conversationHistory", [])
         analysis = analyze_message(message)
         for u in analysis["upi_ids"]:
@@ -106,7 +103,6 @@ async def honeypot(req: Request,x_api_key: str = Header(None)):
                 text = msg.text
             history_text += f"{sender}: {text}\n"
             print(history_text)
-        # Generate persona reply
         reply = generate_persona_reply(message, history_text)
         explanation = explain_scam(message)
         is_scam = explanation.strip().lower().startswith("spam")
@@ -121,7 +117,6 @@ async def honeypot(req: Request,x_api_key: str = Header(None)):
             if len(parts) >= 3:
                 tactics = parts[2].strip()
         else:
-            # Format: Not Spam : Intent: tactics
             if len(parts) >= 3:
                 tactics = parts[2].strip()
         total_messages = len(history) + 1
@@ -135,9 +130,6 @@ async def honeypot(req: Request,x_api_key: str = Header(None)):
         ])
         final_is_scam = is_scam or intel_types > 0
         engagement_duration = calculate_engagement_duration(data)
-        print(engagement_duration, total_messages//2)
-        print(is_scam,",",scam_type,",",tactics)
-        print("Hi",intel,intel_types)
         update_session_status(
             session_id, 
             final_is_scam, 
@@ -187,5 +179,6 @@ def get_results(session_id: str):
         },
         "agentNotes": f"Tactics identified: {status['tactics']}"
     }
+
 
 
