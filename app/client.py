@@ -28,4 +28,6 @@ def call_mistral(messages):
         return data["choices"][0]["message"]["content"]
 
     except Exception:
+        print("Mistral error:", str(e))
         return "Can you explain that again?"
+
