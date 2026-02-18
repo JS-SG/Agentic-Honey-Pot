@@ -7,7 +7,6 @@ load_dotenv()
 MISTRAL_API_URL = "https://api.mistral.ai/v1/chat/completions"
 API_KEY = os.getenv("MISTRAL_API_KEY")
 
-
 def call_mistral(messages):
     try:
         response = requests.post(
@@ -24,10 +23,13 @@ def call_mistral(messages):
             timeout=10
         )
 
+        print("Mistral status:", response.status_code)
+        print("Mistral response:", response.text)
+
         data = response.json()
         return data["choices"][0]["message"]["content"]
 
-    except Exception:
+    except Exception as e:
         print("Mistral error:", str(e))
         return "Can you explain that again?"
 
