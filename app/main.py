@@ -50,7 +50,10 @@ async def honeypot(req: Request, x_api_key: str = Header(None)):
         for msg in history:
             history_text += f"{msg.get('sender')}: {msg.get('text')}\n"
 
-        reply = generate_persona_reply(message, history_text)
+        try:
+            reply = generate_persona_reply(message, history_text)
+        except:
+            reply = "Okay, what should I do now?"
 
         explanation = explain_scam(message)
         is_scam = explanation.lower().startswith("spam")
@@ -116,6 +119,7 @@ def get_results(session_id: str):
         },
         "agentNotes": f"Tactics identified: {status['tactics']}"
     }
+
 
 
 
