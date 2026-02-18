@@ -1,8 +1,5 @@
 import sqlite3
-
 DB = "honeypot1.db"
-
-
 def init_db():
     conn = sqlite3.connect(DB)
     cur = conn.cursor()
@@ -17,6 +14,16 @@ def init_db():
         phone TEXT,
         email TEXT,
         keyword TEXT
+    )
+    """)
+    cur.execute("""
+    CREATE TABLE IF NOT EXISTS sessions (
+        session_id TEXT PRIMARY KEY,
+        is_scam BOOLEAN,
+        scam_type TEXT,
+        tactics TEXT,
+        engagement_duration INTEGER,
+        message_count INTEGER
     )
     """)
     conn.commit()
@@ -63,7 +70,6 @@ def get_session_intelligence(session_id):
         if keyword:
             result["keywords"].append(keyword)
 
-    # Remove duplicates
     for key in result:
         result[key] = list(set(result[key]))
 
@@ -92,4 +98,32 @@ def save_intelligence(session_id, **kwargs):
 
     conn.commit()
     conn.close()
+
+def update_session_status(session_id, is_scam, scam_type, tactics, duration, count):
+    conn = sqlite3.connect(DB)
+    cur = conn.cursor()
+    cur.execute("""
+        INSERT OR REPLACE INTO sessions (session_id, is_scam, scam_type, tactics, engagement_duration, message_count)
+        VALUES (?, ?, ?, ?, ?, ?)
+    """, (session_id, is_scam, scam_type, tactics, duration, count))
+    conn.commit()
+    conn.close()
+
+def get_session_status(session_id):
+    conn = sqlite3.connect(DB)
+    cur = conn.cursor()
+    cur.execute("SELECT is_scam, scam_type, tactics, engagement_duration, message_count FROM sessions WHERE session_id=?", (session_id,))
+    row = cur.fetchone()
+    conn.close()
+    if row:
+        return {
+            "is_scam": bool(row[0]),
+            "scam_type": row[1],
+            "tactics": row[2],
+            "engagement_duration": row[3],
+            "message_count": row[4]
+        }
+    return None
+
+
 
