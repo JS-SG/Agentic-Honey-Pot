@@ -7,7 +7,6 @@ URL_REGEX = r"(https?://[^\s]+|www\.[^\s]+|\b[a-zA-Z0-9.-]+\.(com|in|net|org|co|
 PHONE_REGEX = r"\b(?:\+91[\s-]?|0)?[6-9]\d{9}\b|\b1[0-9]{3}[-\s]?[0-9]{3}[-\s]?[0-9]{4}\b"
 email_regex = r"\b[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}\b"
 
-
 KEYWORDS = ["urgent", "verify", "blocked", "suspended", "account", "transfer",  "inactive", "immediately",
     "verify", "limited time",
 
@@ -33,7 +32,6 @@ def analyze_message(message: str):
         text_without_emails = text_without_emails.replace(email, "")
     all_accounts = list(set(bank_accounts + generic_accounts))
     all_accounts = [acc for acc in all_accounts if acc not in phones]
-    print(emails)
     return {
         "upi_ids": re.findall(UPI_REGEX, text_without_emails),
         "bank_accounts": all_accounts,
@@ -43,4 +41,5 @@ def analyze_message(message: str):
         "emailAddresses": emails,
         "keywords": keywords_found
     }
+
 
