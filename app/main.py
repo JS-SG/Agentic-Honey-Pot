@@ -31,7 +31,6 @@ async def honeypot(req: Request, x_api_key: str = Header(None)):
 
         analysis = analyze_message(message)
 
-        # Save intelligence
         for u in analysis["upi_ids"]:
             save_intelligence(session_id, upi=u)
         for b in analysis["bank_accounts"]:
@@ -47,7 +46,6 @@ async def honeypot(req: Request, x_api_key: str = Header(None)):
         for k in analysis["keywords"]:
             save_intelligence(session_id, keyword=k)
 
-        # Build history text
         history_text = ""
         for msg in history:
             history_text += f"{msg.get('sender')}: {msg.get('text')}\n"
@@ -92,5 +90,25 @@ async def honeypot(req: Request, x_api_key: str = Header(None)):
             "status": "success",
             "reply": "Can you explain that again?"
         }
+@app.get("/results/{session_id}")
+def get_results(session_id: str):
+    intel = get_session_intelligence(session_id)
+    status = get_session_status(session_id)
+    
+    if not status:
+        return {"error": "Session not found"}
+        
+    return {
+        "status": "completed",
+        "scamDetected": status["is_scam"],
+        "scamType": status["scam_type"],
+        "extractedIntelligence": intel,
+        "engagementMetrics": {
+            "totalMessagesExchanged": status["message_count"],
+            "engagementDurationSeconds": status["engagement_duration"]
+        },
+        "agentNotes": f"Tactics identified: {status['tactics']}"
+    }
+
 
 
