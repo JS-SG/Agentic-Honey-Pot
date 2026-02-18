@@ -147,14 +147,14 @@ async def honeypot(req: Request,x_api_key: str = Header(None)):
             total_messages//2
         )
 
-        if total_messages >= 6:
+        if final_is_scam and (total_messages//2 >= 5 and intel_types >= 2):
             send_final_result(
                 session_id=session_id,
                 is_scam=is_scam,
                 scam_type=scam_type,
                 tactics=tactics,
                 intelligence=intel,
-                total_messages=total_messages,
+                total_messages=total_messages//2,
                 engagement_duration=engagement_duration
             )
         return {
@@ -187,4 +187,5 @@ def get_results(session_id: str):
         },
         "agentNotes": f"Tactics identified: {status['tactics']}"
     }
+
 
