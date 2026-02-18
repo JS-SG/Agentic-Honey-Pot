@@ -14,7 +14,7 @@ def send_final_result(session_id, is_scam, scam_type, tactics,
             "totalMessagesExchanged": total_messages,
             "engagementDurationSeconds": engagement_duration
         },
-        "agentNotes": f"{Tactics identified from scammer : {tactics}"
+        "agentNotes": f"Tactics identified from scammer : {tactics}"
     }
 
     try:
