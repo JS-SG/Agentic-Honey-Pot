@@ -10,13 +10,9 @@ def send_final_result(session_id, is_scam, scam_type, tactics,
         "sessionId": session_id,
         "scamDetected": is_scam,
         "scamType": scam_type,
-        "extractedIntelligence": {
-          "phoneNumbers": intelligence["phone_numbers"],
-          "bankAccounts": intelligence["bank_accounts"],
-          "upiIds": intelligence["upi_ids"],
-          "phishingLinks": intelligence["phishing_links"],
-          "emailAddresses": intelligence["emailAddresses"]
-        },
+        "extractedIntelligence": intelligence,
+        "totalMessagesExchanged": total_messages,
+        "engagementDurationSeconds": engagement_duration,
         "engagementMetrics": {
             "totalMessagesExchanged": total_messages,
             "engagementDurationSeconds": engagement_duration
