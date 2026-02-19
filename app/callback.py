@@ -4,13 +4,25 @@ GUVI_ENDPOINT = "https://hackathon.guvi.in/api/updateHoneyPotFinalResult"
 
 def send_final_result(session_id, is_scam, scam_type, tactics,
                       intelligence, total_messages, engagement_duration):
+    
+    allowed_keys = [
+      "phoneNumbers",
+      "bankAccounts",
+      "upiIds",
+      "phishingLinks",
+      "emailAddresses"
+    ]
 
+    filtered_intelligence = {
+      key: intelligence.get(key, [])
+      for key in allowed_keys
+    }
     payload = {
         "status": "completed",
         "sessionId": session_id,
         "scamDetected": is_scam,
         "scamType": scam_type,
-        "extractedIntelligence": intelligence,
+        "extractedIntelligence": filtered_intelligence,
         "totalMessagesExchanged": total_messages,
         "engagementDurationSeconds": engagement_duration,
         "engagementMetrics": {
