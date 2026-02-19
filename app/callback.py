@@ -6,7 +6,7 @@ def send_final_result(session_id, is_scam, scam_type, tactics,
                       intelligence, total_messages, engagement_duration):
 
     payload = {
-        "status": "success",
+        "status": "completed",
         "sessionId": session_id,
         "scamDetected": is_scam,
         "scamType": scam_type,
