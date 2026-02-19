@@ -107,12 +107,30 @@ def save_intelligence(session_id, upi=None, bank=None, ifsc=None, link=None, pho
 def update_session_status(session_id, is_scam, scam_type, tactics, duration, count):
     conn = sqlite3.connect(DB)
     cur = conn.cursor()
-    cur.execute("""
-        INSERT OR REPLACE INTO sessions (session_id, is_scam, scam_type, tactics, engagement_duration, message_count)
-        VALUES (?, ?, ?, ?, ?, ?)
-    """, (session_id, is_scam, scam_type, tactics, duration, count))
+    cur.execute("SELECT callback_sent FROM sessions WHERE session_id=?", (session_id,))
+    row = cur.fetchone()
+    if row:
+        cur.execute("""
+            UPDATE sessions
+            SET is_scam=?,
+                scam_type=?,
+                tactics=?,
+                engagement_duration=?,
+                message_count=?
+            WHERE session_id=?
+        """, (is_scam, scam_type, tactics, duration, count, session_id))
+    else:
+        cur.execute("""
+            INSERT INTO sessions (
+                session_id, is_scam, scam_type, tactics,
+                engagement_duration, message_count, callback_sent
+            )
+            VALUES (?, ?, ?, ?, ?, ?, 0)
+        """, (session_id, is_scam, scam_type, tactics, duration, count))
+
     conn.commit()
     conn.close()
+
 
 def get_session_status(session_id):
     conn = sqlite3.connect(DB)
@@ -141,4 +159,5 @@ def mark_callback_sent(session_id):
     conn.commit()
     conn.close()
     
+
 
