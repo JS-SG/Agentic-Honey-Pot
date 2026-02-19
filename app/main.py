@@ -117,7 +117,6 @@ async def honeypot(req: Request,x_api_key: str = Header(None)):
             if len(parts) >= 3:
                 tactics = parts[2].strip()
         total_messages = len(history) + 1
-        MIN_TURNS = 15
         intel = get_session_intelligence(session_id)
         intel_types = sum([
             bool(intel["upi_ids"]),
@@ -133,7 +132,7 @@ async def honeypot(req: Request,x_api_key: str = Header(None)):
             scam_type, 
             tactics, 
             engagement_duration, 
-            total_messages//2
+            total_messages
         )
         status = get_session_status(session_id)
         if (final_is_scam and total_messages//2 >= 5 and intel_types >= 2 and not status["callback_sent"]):
@@ -177,6 +176,7 @@ def get_results(session_id: str):
         },
         "agentNotes": f"Tactics identified: {status['tactics']}"
     }
+
 
 
 
