@@ -47,12 +47,12 @@ def get_session_intelligence(session_id):
      conn.close()
 
      result = {
-            "upi_ids": [],
-            "bank_accounts": [],
-            "ifsc_codes": [],
-            "phishing_links": [],
-            "phone_numbers": [],
+            "phoneNumbers": [],
+            "bankAccounts": [],
+            "upiIds": [],
+            "phishingLinks": [],
             "emailAddresses":[],
+            "ifscCodes": [],
             "keywords": []
         }
 
@@ -60,15 +60,15 @@ def get_session_intelligence(session_id):
         upi, bank, ifsc, link, phone, email, keyword = row
 
         if upi:
-            result["upi_ids"].append(upi)
+            result["upiIds"].append(upi)
         if bank:
-            result["bank_accounts"].append(bank)
+            result["bankAccounts"].append(bank)
         if ifsc:
-            result["ifsc_codes"].append(ifsc)
+            result["ifscCodes"].append(ifsc)
         if link:
-            result["phishing_links"].append(link)
+            result["phishingLinks"].append(link)
         if phone:
-            result["phone_numbers"].append(phone)
+            result["phoneNumbers"].append(phone)
         if email:
             result["emailAddresses"].append(email)
         if keyword:
@@ -159,5 +159,6 @@ def mark_callback_sent(session_id):
     conn.commit()
     conn.close()
     
+
 
 
