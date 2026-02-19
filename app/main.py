@@ -119,10 +119,11 @@ async def honeypot(req: Request,x_api_key: str = Header(None)):
         total_messages = len(history) + 1
         intel = get_session_intelligence(session_id)
         intel_types = sum([
-            bool(intel["upi_ids"]),
-            bool(intel["bank_accounts"]),
-            bool(intel["phishing_links"]),
-            bool(intel["phone_numbers"])
+            bool(intel["upiIds"]),
+            bool(intel["bankAccounts"]),
+            bool(intel["phishingLinks"]),
+            bool(intel["phoneNumbers"]),
+            bool(intel["emailAddresses"])
         ])
         final_is_scam = is_scam or intel_types > 0
         engagement_duration = calculate_engagement_duration(data)
@@ -176,6 +177,7 @@ def get_results(session_id: str):
         },
         "agentNotes": f"Tactics identified: {status['tactics']}"
     }
+
 
 
 
