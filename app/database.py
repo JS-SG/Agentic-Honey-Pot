@@ -25,7 +25,8 @@ def init_db():
         scam_type TEXT,
         tactics TEXT,
         engagement_duration INTEGER,
-        message_count INTEGER
+        message_count INTEGER,
+        callback_sent BOOLEAN DEFAULT FALSE
     )
     """)
     conn.commit()
@@ -116,7 +117,7 @@ def update_session_status(session_id, is_scam, scam_type, tactics, duration, cou
 def get_session_status(session_id):
     conn = sqlite3.connect(DB)
     cur = conn.cursor()
-    cur.execute("SELECT is_scam, scam_type, tactics, engagement_duration, message_count FROM sessions WHERE session_id=?", (session_id,))
+    cur.execute("SELECT is_scam, scam_type, tactics, engagement_duration, message_count, callback_sent FROM sessions WHERE session_id=?", (session_id,))
     row = cur.fetchone()
     conn.close()
     if row:
@@ -125,6 +126,19 @@ def get_session_status(session_id):
             "scam_type": row[1],
             "tactics": row[2],
             "engagement_duration": row[3],
-            "message_count": row[4]
+            "message_count": row[4],
+            "callback_sent": bool(row[5])
         }
     return None
+
+def mark_callback_sent(session_id):
+    conn = sqlite3.connect(DB)
+    cur = conn.cursor()
+    cur.execute(
+        "UPDATE sessions SET callback_sent = 1 WHERE session_id = ?",
+        (session_id,)
+    )
+    conn.commit()
+    conn.close()
+    
+
