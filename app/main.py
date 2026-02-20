@@ -178,8 +178,9 @@ def get_results(session_id: str):
             "totalMessagesExchanged": status["message_count"],
             "engagementDurationSeconds": status["engagement_duration"]
         },
-        "agentNotes": f"Scammer tries to do {scam_type}. Red flags identified : {tactics}"
+        "agentNotes": f"Scammer tries to do {status["scam_type"]}. Red flags identified : {status["tactics"]}"
     }
+
 
 
 
