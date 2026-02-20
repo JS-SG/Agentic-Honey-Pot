@@ -169,9 +169,9 @@ def get_results(session_id: str):
     return {
         "status": "completed",
         "sessionId": session_id,
-        "scamDetected": is_scam,
-        "scamType": scam_type,
-        "extractedIntelligence": filtered_intelligence,
+        "scamDetected": status["is_scam"],
+        "scamType": status["scam_type"],
+        "extractedIntelligence": intel,
         "totalMessagesExchanged": total_messages,
         "engagementDurationSeconds": engagement_duration,
         "engagementMetrics": {
@@ -180,6 +180,7 @@ def get_results(session_id: str):
         },
         "agentNotes": f"Scammer tries to do {scam_type}. Red flags identified : {tactics}"
     }
+
 
 
 
