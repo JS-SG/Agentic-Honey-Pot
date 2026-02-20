@@ -1,4 +1,4 @@
-potfrom fastapi import FastAPI, Header, HTTPException, Request
+from fastapi import FastAPI, Header, HTTPException, Request
 from app.rules import analyze_message
 from app.persona import generate_persona_reply, explain_scam
 from app.database import init_db, save_intelligence, get_session_intelligence, update_session_status, get_session_status, mark_callback_sent
@@ -177,6 +177,7 @@ def get_results(session_id: str):
         },
         "agentNotes": f"Tactics identified: {status['tactics']}"
     }
+
 
 
 
