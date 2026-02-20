@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Header, HTTPException, Request
+potfrom fastapi import FastAPI, Header, HTTPException, Request
 from app.rules import analyze_message
 from app.persona import generate_persona_reply, explain_scam
 from app.database import init_db, save_intelligence, get_session_intelligence, update_session_status, get_session_status, mark_callback_sent
@@ -12,7 +12,7 @@ init_db()
 
 API_KEY = os.getenv("HONEYPOT_API_KEY")
 
-@app.api_route("/", methods=["GET", "HEAD"])
+@app.api_route("/honeypot", methods=["GET", "HEAD"])
 def health():
     return {"status": "running"}
 
@@ -49,7 +49,7 @@ def calculate_engagement_duration(request_data):
     return int(max(timestamps) - min(timestamps))
 
 
-@app.post("/")
+@app.post("/honeypot")
 async def honeypot(req: Request,x_api_key: str = Header(None)):
     
     if x_api_key != API_KEY:
@@ -158,7 +158,7 @@ async def honeypot(req: Request,x_api_key: str = Header(None)):
             "reply": "I'm not sure I understood. Can you explain again?"
         }
 
-@app.get("/results/{session_id}")
+@app.get("/honeypot/results/{session_id}")
 def get_results(session_id: str):
     intel = get_session_intelligence(session_id)
     status = get_session_status(session_id)
@@ -177,6 +177,7 @@ def get_results(session_id: str):
         },
         "agentNotes": f"Tactics identified: {status['tactics']}"
     }
+
 
 
 
